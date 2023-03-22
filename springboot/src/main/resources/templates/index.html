@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Exemplo de uso do STOMP com RabbitMQ e jQuery</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+
+<body>
+	<h1>Message STOMP with RabbitMQ e jQuery to <span th:text="${name}"></span></h1>
+	<p id="mensagem"></p>
+	<input id="mensagemText" type="text" />
+	<button onclick="enviarMensagem()">Enviar Mensagem</button>
+	<script  th:inline="javascript">
+      	/*<![CDATA[*/
+        var name = /*[[${name}]]*/'';
+       
+		var cliente = Stomp.client('ws://' + window.location.hostname + ':15674/ws');
+		cliente.connect("stomp", "stomp", function (frame) {
+			console.log("Conectado: " + frame);
+			cliente.subscribe("/topic/test-"+name, function (mensagem) {
+				$("#mensagem").append(mensagem.body + '<br>');
+			});
+		});
+
+		function enviarMensagem() {
+			var mensagem = $('#mensagemText').val();
+			cliente.send("/topic/test-"+name, {}, mensagem);
+		}
+		/*]]>*/
+	</script>
+</body>
+
+</html>
